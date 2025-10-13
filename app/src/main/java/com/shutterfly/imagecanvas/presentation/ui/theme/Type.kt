@@ -1,4 +1,4 @@
-package com.shutterfly.imagecanvas.ui.theme
+package com.shutterfly.imagecanvas.presentation.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
