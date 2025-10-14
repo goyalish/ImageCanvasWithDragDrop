@@ -3,15 +3,13 @@ package com.shutterfly.imagecanvas.presentation.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,21 +35,17 @@ fun Carousel(
     onDragCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scroll = rememberScrollState()
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(scroll)
-            .padding(dimensionResource(R.dimen.small_12)),
+    LazyRow(
+        modifier = modifier.padding(dimensionResource(R.dimen.small_12)),
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.small_12))
     ) {
-        for (image in images) {
+        items(images) { image ->
             // Keep track of this image’s global layout position
             var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
             var lastDrag by remember { mutableStateOf(Offset.Zero) }
 
             Box(
-                modifier = modifier
+                modifier = Modifier
                     .size(dimensionResource(R.dimen.x_large_80))
                     .onGloballyPositioned { coords -> coordinates = coords }
                     .pointerInput(image) {
@@ -79,7 +73,7 @@ fun Carousel(
                 Image(
                     painter = painterResource(id = image),
                     contentDescription = null,
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxSize()
                         .border(
                             dimensionResource(R.dimen.x_small_1), Color.LightGray,

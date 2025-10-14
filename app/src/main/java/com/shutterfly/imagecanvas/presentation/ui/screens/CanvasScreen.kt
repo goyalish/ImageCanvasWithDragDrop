@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -29,6 +28,9 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.shutterfly.imagecanvas.R
 import com.shutterfly.imagecanvas.presentation.ui.components.CanvasPlacedImage
@@ -53,20 +55,53 @@ fun CanvasScreen(
     if (canvasViewState.value.isLoading) CircularProgressbar()
     else if (canvasViewState.value.error != null) ErrorScreen()
     else {
-        Box(
+
+        ConstraintLayout(
             modifier = modifier
                 .fillMaxSize()
                 .onGloballyPositioned { coords ->
                     val rootPos = coords.positionInRoot()
                     rootLeft = rootPos.x
                     rootTop = rootPos.y
-                }) {
+                }
+        ) {
+            val (canvas, carousel) = createRefs()
+            val margin = dimensionResource(R.dimen.small_12)
+
+            // Carousel at bottom
+            Carousel(
+                modifier = modifier.constrainAs(carousel) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+                images = canvasViewState.value.images,
+                onDragStart = { resId, startGlobal ->
+                    viewModel.onEvent(CanvasViewIntent.StartTempDrag(resId, startGlobal))
+                },
+                onDragMove = { x, y ->
+                    viewModel.onEvent(CanvasViewIntent.UpdateTempDrag(x, y))
+                },
+                onDragEnd = { dropX, dropY ->
+                    // Pass canvas global Left/Top so VM can compute canvas-local coords
+                    viewModel.onEvent(
+                        CanvasViewIntent.EndTempDrag(dropX, dropY, canvasLeft, canvasTop)
+                    )
+                },
+                onDragCancel = { viewModel.onEvent(CanvasViewIntent.CancelTempDrag) },
+            )
+
             // center square canvas
             Box(
                 modifier = modifier
-                    .align(Alignment.Center)
-                    .padding(horizontal = dimensionResource(R.dimen.medium_24))
-                    .fillMaxWidth()
+                    .constrainAs(canvas) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(carousel.top) // Constrain bottom to the top of the carousel
+                        start.linkTo(parent.start, margin = margin)
+                        end.linkTo(parent.end, margin = margin)
+                        width = Dimension.fillToConstraints
+                        height = Dimension.ratio("1:1")
+                    }
                     .aspectRatio(1f)
                     .onGloballyPositioned { coords ->
                         val pos = coords.positionInRoot()
@@ -79,7 +114,6 @@ fun CanvasScreen(
                         color = Color.Gray,
                         shape = RoundedCornerShape(dimensionResource(R.dimen.small_8))
                     ),
-                contentAlignment = Alignment.TopStart
             ) {
                 // Canvas area: show dropped images
                 Box(modifier = modifier.fillMaxSize()) {
@@ -117,26 +151,6 @@ fun CanvasScreen(
                         .graphicsLayer { alpha = 0.9f }
                 )
             }
-
-
-            // Carousel at bottom
-            Carousel(
-                images = canvasViewState.value.images,
-                onDragStart = { resId, startGlobal ->
-                    viewModel.onEvent(CanvasViewIntent.StartTempDrag(resId, startGlobal))
-                },
-                onDragMove = { x, y ->
-                    viewModel.onEvent(CanvasViewIntent.UpdateTempDrag(x, y))
-                },
-                onDragEnd = { dropX, dropY ->
-                    // Pass canvas global Left/Top so VM can compute canvas-local coords
-                    viewModel.onEvent(
-                        CanvasViewIntent.EndTempDrag(dropX, dropY, canvasLeft, canvasTop)
-                    )
-                },
-                onDragCancel = { viewModel.onEvent(CanvasViewIntent.CancelTempDrag) },
-                modifier = modifier.align(Alignment.BottomCenter)
-            )
         }
     }
 }
