@@ -77,18 +77,18 @@ fun CanvasScreen(
                 },
                 images = canvasViewState.value.images,
                 onDragStart = { resId, startGlobal ->
-                    viewModel.onEvent(CanvasViewIntent.StartTempDrag(resId, startGlobal))
+                    viewModel.sendIntent(CanvasViewIntent.StartTempDrag(resId, startGlobal))
                 },
                 onDragMove = { x, y ->
-                    viewModel.onEvent(CanvasViewIntent.UpdateTempDrag(x, y))
+                    viewModel.sendIntent(CanvasViewIntent.UpdateTempDrag(x, y))
                 },
                 onDragEnd = { dropX, dropY ->
                     // Pass canvas global Left/Top so VM can compute canvas-local coords
-                    viewModel.onEvent(
+                    viewModel.sendIntent(
                         CanvasViewIntent.EndTempDrag(dropX, dropY, canvasLeft, canvasTop)
                     )
                 },
-                onDragCancel = { viewModel.onEvent(CanvasViewIntent.CancelTempDrag) },
+                onDragCancel = { viewModel.sendIntent(CanvasViewIntent.CancelTempDrag) },
             )
 
             // center square canvas
@@ -121,7 +121,7 @@ fun CanvasScreen(
                         CanvasPlacedImage(
                             img = img,
                             onTransform = { id, dx, dy, scale, rotation ->
-                                viewModel.onEvent(
+                                viewModel.sendIntent(
                                     CanvasViewIntent.UpdateCanvasImageTransform(
                                         id, dx, dy, scale, rotation
                                     )

@@ -13,6 +13,7 @@ import com.shutterfly.imagecanvas.presentation.model.CanvasImage
 import com.shutterfly.imagecanvas.presentation.model.TempDrag
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -26,44 +27,54 @@ class CanvasViewModel @Inject constructor(
     private val imagesUseCase: ImagesUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<CanvasViewState>(CanvasViewState())
+    private val _state = MutableStateFlow(CanvasViewState())
     val state: StateFlow<CanvasViewState> = _state
 
+    private val _intents = MutableSharedFlow<CanvasViewIntent>()
+
     init {
-        onEvent(CanvasViewIntent.GetImages)
+        handleIntents()
+        sendIntent(CanvasViewIntent.GetImages)
     }
 
+    fun sendIntent(intent: CanvasViewIntent) {
+        viewModelScope.launch { _intents.emit(intent) }
+    }
 
-    fun onEvent(intent: CanvasViewIntent) {
-        when (intent) {
-            is CanvasViewIntent.GetImages -> {
-                loadImages()
-            }
+    private fun handleIntents() {
+        viewModelScope.launch {
+            _intents.collect { intent ->
+                when (intent) {
+                    is CanvasViewIntent.GetImages -> {
+                        loadImages()
+                    }
 
-            is CanvasViewIntent.StartTempDrag -> {
-                startTempDrag(intent.resId, intent.globalStart)
-            }
+                    is CanvasViewIntent.StartTempDrag -> {
+                        startTempDrag(intent.resId, intent.globalStart)
+                    }
 
-            is CanvasViewIntent.UpdateTempDrag -> {
-                updateTempDrag(intent.x, intent.y)
-            }
+                    is CanvasViewIntent.UpdateTempDrag -> {
+                        updateTempDrag(intent.x, intent.y)
+                    }
 
-            is CanvasViewIntent.EndTempDrag -> {
-                endTempDrag(intent.dropX, intent.dropY, intent.canvasLeft, intent.canvasTop)
-            }
+                    is CanvasViewIntent.EndTempDrag -> {
+                        endTempDrag(intent.dropX, intent.dropY, intent.canvasLeft, intent.canvasTop)
+                    }
 
-            is CanvasViewIntent.CancelTempDrag -> {
-                cancelTempDrag()
-            }
+                    is CanvasViewIntent.CancelTempDrag -> {
+                        cancelTempDrag()
+                    }
 
-            is CanvasViewIntent.UpdateCanvasImageTransform -> {
-                updateCanvasImageTransform(
-                    intent.id,
-                    intent.dx,
-                    intent.dy,
-                    intent.newScale,
-                    intent.newRotation
-                )
+                    is CanvasViewIntent.UpdateCanvasImageTransform -> {
+                        updateCanvasImageTransform(
+                            intent.id,
+                            intent.dx,
+                            intent.dy,
+                            intent.newScale,
+                            intent.newRotation
+                        )
+                    }
+                }
             }
         }
     }
