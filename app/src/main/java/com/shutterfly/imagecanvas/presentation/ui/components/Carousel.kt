@@ -24,8 +24,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.shutterfly.imagecanvas.R
 
 @Composable
 fun Carousel(
@@ -41,8 +43,8 @@ fun Carousel(
         modifier = modifier
             .fillMaxWidth()
             .horizontalScroll(scroll)
-            .padding(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(dimensionResource(R.dimen.small_12)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.small_12))
     ) {
         for (image in images) {
             // Keep track of this image’s global layout position
@@ -50,14 +52,15 @@ fun Carousel(
 
             Box(
                 modifier = modifier
-                    .size(80.dp)
+                    .size(dimensionResource(R.dimen.x_large_80))
                     .onGloballyPositioned { coords -> coordinates = coords }
                     .pointerInput(image) {
                         detectDragGesturesAfterLongPress(
                             onDragStart = { offset ->
                                 // Convert local offset to global using saved coordinates
-                                val globalPos: Offset = coordinates?.localToRoot(offset) ?: Offset.Zero
-                                onDragStart(image, offset)
+                                val globalPos: Offset =
+                                    coordinates?.localToRoot(offset) ?: Offset.Zero
+                                onDragStart(image, globalPos)
                                 lastDragX = offset.x
                                 lastDragY = offset.y
                             },
@@ -80,7 +83,10 @@ fun Carousel(
                     contentDescription = null,
                     modifier = modifier
                         .fillMaxSize()
-                        .border(1.dp, Color.LightGray, shape = RoundedCornerShape(6.dp))
+                        .border(
+                            dimensionResource(R.dimen.x_small_1), Color.LightGray,
+                            shape = RoundedCornerShape(6.dp)
+                        )
                 )
             }
         }
