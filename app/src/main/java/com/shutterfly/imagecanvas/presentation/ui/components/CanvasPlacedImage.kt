@@ -10,9 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.IntOffset
+import com.shutterfly.imagecanvas.R
 import com.shutterfly.imagecanvas.presentation.model.CanvasImage
 import kotlin.ranges.coerceIn
 
@@ -41,13 +42,11 @@ fun CanvasPlacedImage(
                 }
             }
     ) {
-        // show image with scale applied and maintain aspect ratio automatically by box size
-        val sizeDp = 120.dp // default display size for image on canvas
         Image(
             painter = painterResource(id = img.resId),
             contentDescription = null,
             modifier = Modifier
-                .size(sizeDp)
+                .size(dimensionResource(R.dimen.x_large_80))
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale

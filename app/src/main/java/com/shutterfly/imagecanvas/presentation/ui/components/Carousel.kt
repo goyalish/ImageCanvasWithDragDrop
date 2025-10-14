@@ -26,7 +26,6 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import com.shutterfly.imagecanvas.R
 
 @Composable
@@ -49,6 +48,7 @@ fun Carousel(
         for (image in images) {
             // Keep track of this image’s global layout position
             var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+            var lastDrag by remember { mutableStateOf(Offset.Zero) }
 
             Box(
                 modifier = modifier
@@ -61,18 +61,16 @@ fun Carousel(
                                 val globalPos: Offset =
                                     coordinates?.localToRoot(offset) ?: Offset.Zero
                                 onDragStart(image, globalPos)
-                                lastDragX = offset.x
-                                lastDragY = offset.y
+                                lastDrag = globalPos
                             },
                             onDrag = { pointerInputChange, _ ->
                                 val pos: Offset = pointerInputChange.position
                                 val global = coordinates?.localToRoot(pos) ?: pos
-                                lastDragX = global.x
-                                lastDragY = global.y
+                                lastDrag = global
                                 onDragMove(global.x, global.y)
                             },
                             onDragEnd = {
-                                onDragEnd(lastDragX, lastDragY)
+                                onDragEnd(lastDrag.x, lastDrag.y)
                             },
                             onDragCancel = { onDragCancel() }
                         )
@@ -85,13 +83,10 @@ fun Carousel(
                         .fillMaxSize()
                         .border(
                             dimensionResource(R.dimen.x_small_1), Color.LightGray,
-                            shape = RoundedCornerShape(6.dp)
+                            shape = RoundedCornerShape(dimensionResource(R.dimen.small_6))
                         )
                 )
             }
         }
     }
 }
-
-private var lastDragX: Float = 0f
-private var lastDragY: Float = 0f

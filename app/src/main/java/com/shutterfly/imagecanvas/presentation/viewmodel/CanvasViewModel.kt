@@ -68,7 +68,7 @@ class CanvasViewModel @Inject constructor(
         }
     }
 
-    fun loadImages() {
+    private fun loadImages() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
 //            delay(2000)

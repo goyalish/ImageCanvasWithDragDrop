@@ -12,7 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import com.shutterfly.imagecanvas.R
 
 /**
  * Composable for displaying a circular progress bar.
@@ -28,10 +29,10 @@ fun CircularProgressbar() {
     ) {
         CircularProgressIndicator(
             modifier = Modifier
-                .size(100.dp)
-                .padding(16.dp),
+                .size(dimensionResource(R.dimen.x_large_100))
+                .padding(dimensionResource(R.dimen.small_16)),
             color = MaterialTheme.colorScheme.outline,
-            strokeWidth = 8.dp,
+            strokeWidth = dimensionResource(R.dimen.small_8),
             trackColor = MaterialTheme.colorScheme.primary,
             strokeCap = StrokeCap.Round
         )
