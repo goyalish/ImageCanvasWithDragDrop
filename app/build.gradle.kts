@@ -39,6 +39,16 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        // This tells Gradle to exclude these specific files from the final APK,
+        // resolving the conflict. It's safe to exclude them as they are
+        // not needed for the app to run.
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
+        }
+    }
 }
 
 dependencies {
