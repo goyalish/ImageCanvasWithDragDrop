@@ -23,3 +23,6 @@ This project leverages a modern Android tech stack:
     -  Data Layer: ImagesRepository responsible for fetching data (currently mocked).
     - Dependency Injection: Hilt is used to manage dependencies throughout the app, simplifying the architecture and improving testability.
     - Asynchronous Programming: Kotlin Coroutines and Flow are used for managing background tasks and handling asynchronous data streams from the repository to the UI.
+ 
+- Screenshot
+<img width="406" height="824" alt="Screenshot 2025-10-14 at 11 03 13 PM" src="https://github.com/user-attachments/assets/afa9f780-afd8-4109-849c-169441f5709d" />
